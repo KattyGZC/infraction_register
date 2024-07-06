@@ -1,0 +1,21 @@
+{% extends 'register_app/index.html' %}
+{% block content %}
+<div class="card" style="width: 18rem;">
+    <div class="card-body">
+        <h5 class="card-title">Detalle de {{ object }}</h5>
+    </div>
+    <ul class="list-group list-group-flush">
+        {% for field_name, field_value in fields %}
+            <li class="list-group-item">
+                <strong>{{ field_name }}</strong>: {{ field_value }}
+            </li>
+        {% endfor %}
+    </ul>
+    <div class="card-body">
+        <a href="{{ url_edit }}" class="btn btn-sm btn-warning">Editar</a>
+        <a href="{{ url_delete }}" class="btn btn-sm btn-danger">Eliminar</a>
+        <a href="{{ url }}" class="card-link">Volver</a>
+    </div>
+</div>
+
+{% endblock %}

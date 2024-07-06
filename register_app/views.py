@@ -17,6 +17,7 @@ class PersonListView(ListView):
                 'obj': obj,
                 'url_edit': reverse('register_app:person_edit', kwargs={'pk': obj.pk}),
                 'url_delete': reverse('register_app:person_delete', kwargs={'pk': obj.pk}),
+                'url_detail': reverse('register_app:person_detail', kwargs={'pk': obj.pk}),
             }
             for obj in self.object_list
         ]
@@ -36,6 +37,7 @@ class VehicleListView(ListView):
                 'obj': obj,
                 'url_edit': reverse('register_app:vehicle_edit', kwargs={'pk': obj.pk}),
                 'url_delete': reverse('register_app:vehicle_delete', kwargs={'pk': obj.pk}),
+                'url_detail': reverse('register_app:vehicle_detail', kwargs={'pk': obj.pk}),
             }
             for obj in self.object_list
         ]
@@ -55,6 +57,7 @@ class OfficerListView(ListView):
                 'obj': obj,
                 'url_edit': reverse('register_app:officer_edit', kwargs={'pk': obj.pk}),
                 'url_delete': reverse('register_app:officer_delete', kwargs={'pk': obj.pk}),
+                'url_detail': reverse('register_app:officer_detail', kwargs={'pk': obj.pk}),
             }
             for obj in self.object_list
         ]
@@ -175,4 +178,53 @@ class OfficerDeleteView(DeleteView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["url"] = reverse('register_app:officer_list')
+        return context
+    
+
+class PersonDetailView(DetailView):
+    model = Person
+    template_name = 'register_app/detail.html'
+    success_url = reverse_lazy('register_app:person_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["url"] = reverse('register_app:person_list')
+        context['url_edit'] = reverse('register_app:person_edit', kwargs={'pk': self.object.pk})
+        context['url_delete'] = reverse('register_app:person_delete', kwargs={'pk': self.object.pk})
+        context['fields'] = [(field.verbose_name, field.value_from_object(self.object)) for field in self.object._meta.fields]
+        return context
+
+
+class VehicleDetailView(DetailView):
+    model = Vehicle
+    template_name = 'register_app/detail.html'
+    success_url = reverse_lazy('register_app:vehicle_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["url"] = reverse('register_app:vehicle_list')
+        context['url_edit'] = reverse('register_app:vehicle_edit', kwargs={'pk': self.object.pk})
+        context['url_delete'] = reverse('register_app:vehicle_delete', kwargs={'pk': self.object.pk})
+        fields = []
+        for field in self.object._meta.fields:
+            value = getattr(self.object, field.name)
+            if field.is_relation:
+                value = str(value)
+            fields.append((field.verbose_name, value))
+        
+        context['fields'] = fields
+        return context
+
+
+class OfficerDetailView(DetailView):
+    model = Officers
+    template_name = 'register_app/detail.html'
+    success_url = reverse_lazy('register_app:officer_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["url"] = reverse('register_app:officer_list')
+        context['url_edit'] = reverse('register_app:officer_edit', kwargs={'pk': self.object.pk})
+        context['url_delete'] = reverse('register_app:officer_delete', kwargs={'pk': self.object.pk})
+        context['fields'] = [(field.verbose_name, field.value_from_object(self.object)) for field in self.object._meta.fields]
         return context
