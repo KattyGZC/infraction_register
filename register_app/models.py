@@ -40,7 +40,7 @@ class Officers(models.Model):
 
 class Infraction(models.Model):
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, verbose_name='Vehículo')
-    timestamp = models.DateTimeField('Fecha y hora', auto_now=True)
+    timestamp = models.DateTimeField('Fecha y hora')
     comment = models.CharField('Comentarios', max_length=100)
 
     def __str__(self) -> str:

@@ -1,8 +1,14 @@
 from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView, ListView, UpdateView, DeleteView, DetailView
+from django.http import HttpResponse, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from rest_framework.parsers import JSONParser
 
 from .models import Person, Vehicle, Officers, Infraction
-
+from .serializers import InfractionSerializer
 class PersonListView(ListView):
     model = Person
     template_name = 'register_app/list.html'
@@ -228,3 +234,50 @@ class OfficerDetailView(DetailView):
         context['url_delete'] = reverse('register_app:officer_delete', kwargs={'pk': self.object.pk})
         context['fields'] = [(field.verbose_name, field.value_from_object(self.object)) for field in self.object._meta.fields]
         return context
+    
+from rest_framework.exceptions import ParseError
+@csrf_exempt
+@api_view(['POST'])
+def cargar_infraccion(request):
+    """
+    create a new infraction.
+    """
+    OK = status.HTTP_200_OK
+    NOT_FOUND = status.HTTP_404_NOT_FOUND
+    SERVER_ERROR = status.HTTP_500_INTERNAL_SERVER_ERROR
+    
+    if request.method == 'POST':
+
+        if not request.data.get('patente'):
+            response_data = {
+                'status': NOT_FOUND,
+                'message': "El parámetro 'patente' es obligatorio."
+            }
+            return Response(response_data, status=NOT_FOUND)
+
+        serializer = InfractionSerializer(data=request.data)
+
+        if serializer.is_valid():
+            try:
+                serializer.save()
+                response_data = {
+                    'status': OK,
+                    'object': serializer.data,
+                    'msj': 'Infracción registrada con éxito.'
+                }
+                return Response(response_data, status=OK)
+
+            except Exception as e:
+                response_data = {
+                    'status': SERVER_ERROR,
+                    'msj': 'Ocurrió un error inesperado.',
+                    'errors': str(e)
+                }
+                return Response(response_data, status=SERVER_ERROR)
+        else:
+            response_data = {
+                'status': NOT_FOUND,
+                'message': 'Errores de validación.',
+                'errors': serializer.errors
+            }
+            return Response(response_data, status=NOT_FOUND)
