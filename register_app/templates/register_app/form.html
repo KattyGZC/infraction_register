@@ -5,7 +5,7 @@
     {% csrf_token %}
 
     {{ form.as_p }}
-    <button type="submit" class="btn btn-sm btn-primary">Crear</button>
+    <button type="submit" class="btn btn-sm btn-primary">{{ action }}</button>
     <a href="{{ url }}" type="submit" class="btn btn-sm btn-outline-warning">Volver</a>
 </form>
 {% endblock %}
