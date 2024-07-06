@@ -19,7 +19,7 @@ class Vehicle(models.Model):
     color = models.CharField('Color', max_length=50)
 
     def __str__(self) -> str:
-        return f'{self.person.name} - {self.patente}'
+        return f'PLACA: {self.patente} - {self.person.name}'
 
     class Meta:
         verbose_name = 'Vehículo'

@@ -1,10 +1,15 @@
 {% extends 'register_app/index.html' %}
 
 {% block content %}
-<form method="post">{% csrf_token %}
-    <p>Are you sure you want to delete "{{ object }}"?</p>
-    {{ form }}
-    <input type="submit" value="Confirm">
-</form>
+<div class="card" style="width: 18rem;">
+    <div class="card-body">
+        <form method="post">{% csrf_token %}
+            <p>¿Está seguro de querer eliminar a "{{ object }}"?</p>
+            {{ form }}
+            <input type="submit" value="Confirm">
+            <a href="{{ url }}" type="submit" class="btn btn-sm btn-outline-warning">Volver</a>
+        </form>
+    </div>
+  </div>
 {% endblock %}
     

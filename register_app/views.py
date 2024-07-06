@@ -34,7 +34,8 @@ class VehicleListView(ListView):
         context['items_with_urls'] = [
             {
                 'obj': obj,
-                'url_edit': reverse('register_app:vehicle_edit', kwargs={'pk': obj.pk})
+                'url_edit': reverse('register_app:vehicle_edit', kwargs={'pk': obj.pk}),
+                'url_delete': reverse('register_app:vehicle_delete', kwargs={'pk': obj.pk}),
             }
             for obj in self.object_list
         ]
@@ -52,11 +53,13 @@ class OfficerListView(ListView):
         context['items_with_urls'] = [
             {
                 'obj': obj,
-                'url_edit': reverse('register_app:officer_edit', kwargs={'pk': obj.pk})
+                'url_edit': reverse('register_app:officer_edit', kwargs={'pk': obj.pk}),
+                'url_delete': reverse('register_app:officer_delete', kwargs={'pk': obj.pk}),
             }
             for obj in self.object_list
         ]
         return context  
+
 
 class PersonCreateView(CreateView):
     model = Person
@@ -81,6 +84,7 @@ class VehicleCreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = 'Nuevo registro de vehículo'
+        context['action']  = 'Crear'
         context["url"] = reverse('register_app:vehicle_list')
         return context 
     
@@ -94,6 +98,7 @@ class OfficerCreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = 'Nuevo registro de Oficial'
+        context['action']  = 'Crear'
         context["url"] = reverse('register_app:officer_list')
         return context 
     
@@ -144,3 +149,30 @@ class PersonDeleteView(DeleteView):
     model = Person
     template_name = 'register_app/delete_confirm_form.html'
     success_url = reverse_lazy('register_app:person_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["url"] = reverse('register_app:person_list')
+        return context
+
+
+class VehicleDeleteView(DeleteView):
+    model = Vehicle
+    template_name = 'register_app/delete_confirm_form.html'
+    success_url = reverse_lazy('register_app:vehicle_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["url"] = reverse('register_app:vehicle_list')
+        return context
+
+
+class OfficerDeleteView(DeleteView):
+    model = Officers
+    template_name = 'register_app/delete_confirm_form.html'
+    success_url = reverse_lazy('register_app:officer_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["url"] = reverse('register_app:officer_list')
+        return context
