@@ -235,7 +235,7 @@ class OfficerDetailView(DetailView):
         context['fields'] = [(field.verbose_name, field.value_from_object(self.object)) for field in self.object._meta.fields]
         return context
     
-from rest_framework.exceptions import ParseError
+
 @csrf_exempt
 @api_view(['POST'])
 def cargar_infraccion(request):
@@ -281,3 +281,12 @@ def cargar_infraccion(request):
                 'errors': serializer.errors
             }
             return Response(response_data, status=NOT_FOUND)
+        
+@csrf_exempt
+@api_view(['GET'])
+def generar_informe(request):
+    if request.method == 'GET':
+        email = request.query_params.get('email')
+        infracctions = Infraction.objects.filter(vehicle__person__email=email)
+        serializer = InfractionSerializer(infracctions, many=True)
+        return Response(serializer.data)

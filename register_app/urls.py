@@ -24,4 +24,5 @@ urlpatterns = [
     path("officer/<int:pk>", views.OfficerDetailView.as_view(), name="officer_detail"),
 
     path('api/cargar-infraccion', views.cargar_infraccion, name='cargar_infraccion'),
+    path('api/generar-informe', views.generar_informe, name='generar_informe'),
 ]
