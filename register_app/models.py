@@ -2,7 +2,7 @@ from django.db import models
 
 class Person(models.Model):
     name = models.CharField('Nombre', max_length=100)
-    email = models.EmailField('Email', max_length=255)
+    email = models.EmailField('Email', max_length=255, unique=True)
 
     def __str__(self) -> str:
         return self.name
@@ -14,7 +14,7 @@ class Person(models.Model):
 
 class Vehicle(models.Model):
     person = models.ForeignKey(Person, on_delete=models.CASCADE, verbose_name='Persona')
-    patente = models.CharField('Placa de patente', max_length=15)
+    patente = models.CharField('Placa de patente', max_length=15, unique=True)
     brand = models.CharField('Marca', max_length=100)
     color = models.CharField('Color', max_length=50)
 
@@ -29,10 +29,10 @@ class Vehicle(models.Model):
 
 class Officers(models.Model):
     name = models.CharField('Nombre', max_length=100)
-    nui = models.IntegerField('Nro. Único Identificatorio')
+    nui = models.IntegerField('Nro. Único Identificatorio', unique=True)
 
     def __str__(self) -> str:
-        return self.name
+        return f'NUI: {self.nui} - {self.name}'
 
     class Meta:
         verbose_name = 'Oficial'
