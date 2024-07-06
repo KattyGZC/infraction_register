@@ -15,7 +15,8 @@ class PersonListView(ListView):
         context['items_with_urls'] = [
             {
                 'obj': obj,
-                'url_edit': reverse('register_app:person_edit', kwargs={'pk': obj.pk})
+                'url_edit': reverse('register_app:person_edit', kwargs={'pk': obj.pk}),
+                'url_delete': reverse('register_app:person_delete', kwargs={'pk': obj.pk}),
             }
             for obj in self.object_list
         ]
@@ -137,3 +138,9 @@ class OfficerEditView(UpdateView):
         context["action"] = 'Guardar'
         context["url"] = reverse('register_app:officer_list')
         return context
+    
+
+class PersonDeleteView(DeleteView):
+    model = Person
+    template_name = 'register_app/delete_confirm_form.html'
+    success_url = reverse_lazy('register_app:person_list')

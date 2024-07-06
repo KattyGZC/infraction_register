@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import (PersonListView, PersonCreateView, PersonEditView, 
+from .views import (PersonListView, PersonCreateView, PersonEditView, PersonDeleteView,
                     VehicleListView, VehicleCreateView, VehicleEditView,
                     OfficerListView, OfficerCreateView, OfficerEditView)
 
@@ -10,6 +10,7 @@ urlpatterns = [
     path("person", PersonListView.as_view(), name="person_list"),
     path("person/create", PersonCreateView.as_view(), name="person_create"),
     path("person/edit/<int:pk>", PersonEditView.as_view(), name="person_edit"),
+    path("person/delete/<int:pk>", PersonDeleteView.as_view(), name="person_delete"),
 
     path("vehicle", VehicleListView.as_view(), name="vehicle_list"),
     path("vehicle/create", VehicleCreateView.as_view(), name="vehicle_create"),
