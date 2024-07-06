@@ -236,7 +236,7 @@ class OfficerDetailView(DetailView):
         return context
     
 
-@csrf_exempt
+
 @api_view(['POST'])
 def cargar_infraccion(request):
     """
@@ -282,7 +282,7 @@ def cargar_infraccion(request):
             }
             return Response(response_data, status=NOT_FOUND)
         
-@csrf_exempt
+        
 @api_view(['GET'])
 def generar_informe(request):
     if request.method == 'GET':
