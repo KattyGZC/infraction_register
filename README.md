@@ -9,8 +9,9 @@
 5. Instalar las dependencias `pip install -r requirements.txt`
 6. Crear las migraciones `python manage.py makemigrations`
 7. Ejecutar las migraciones `python manage.py migrate`
+8. Ejecutar `python manage.py runserver` 
 
-#### Con Docker:
+### Con Docker:
 Como pre-requisito se debe tener instalado docker en la máquina donde se probará. https://docs.docker.com/engine/install/ 
 
 En una terminal:
