@@ -236,16 +236,16 @@ class OfficerDetailView(DetailView):
         return context
     
 
+OK = status.HTTP_200_OK
+NOT_FOUND = status.HTTP_404_NOT_FOUND
+SERVER_ERROR = status.HTTP_500_INTERNAL_SERVER_ERROR
+
 
 @api_view(['POST'])
 def cargar_infraccion(request):
     """
     create a new infraction.
     """
-    OK = status.HTTP_200_OK
-    NOT_FOUND = status.HTTP_404_NOT_FOUND
-    SERVER_ERROR = status.HTTP_500_INTERNAL_SERVER_ERROR
-    
     if request.method == 'POST':
 
         if not request.data.get('patente'):
@@ -287,6 +287,20 @@ def cargar_infraccion(request):
 def generar_informe(request):
     if request.method == 'GET':
         email = request.query_params.get('email')
-        infracctions = Infraction.objects.filter(vehicle__person__email=email)
-        serializer = InfractionSerializer(infracctions, many=True)
-        return Response(serializer.data)
+        infracctions = Infraction.objects.filter(vehicle__person__email=email).order_by('timestamp')
+        if infracctions.exists():
+            serializer = InfractionSerializer(infracctions, many=True)
+            response_data = {
+                'status': OK,
+                'objects': serializer.data,
+                'msj': 'Infracciones encontradas.'
+            }
+
+        else:
+            response_data = {
+                'status': NOT_FOUND,
+                'objects': [],
+                'msj': 'No se encontraron infracciones.'
+            }
+
+        return Response(response_data)
