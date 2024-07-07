@@ -36,6 +36,7 @@ class TokenObtainSerializer(serializers.Serializer):
         refresh = RefreshToken.for_user(officer)
         refresh['user_id'] = officer.id
         return {
+            'officer': officer.name, 
             'refresh': str(refresh),
             'access': str(refresh.access_token),
         }
