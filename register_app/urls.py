@@ -1,5 +1,8 @@
 from django.urls import path
-
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 from . import views 
 
 app_name = 'register_app'
@@ -23,6 +26,9 @@ urlpatterns = [
     path("officer/delete/<int:pk>", views.OfficerDeleteView.as_view(), name="officer_delete"),
     path("officer/<int:pk>", views.OfficerDetailView.as_view(), name="officer_detail"),
 
+    # API's
+    path('api/token', views.TokenObtainView.as_view(), name='token_obtain'),
+    path('api/token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/cargar-infraccion', views.cargar_infraccion, name='cargar_infraccion'),
     path('api/generar-informe', views.generar_informe, name='generar_informe'),
 ]

@@ -33,10 +33,15 @@ class Officers(models.Model):
 
     def __str__(self) -> str:
         return f'NUI: {self.nui} - {self.name}'
-
+    
+    @property
+    def is_authenticated(self):
+        return True
+    
     class Meta:
         verbose_name = 'Oficial'
         verbose_name_plural = 'Oficiales'
+
 
 class Infraction(models.Model):
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, verbose_name='Vehículo')

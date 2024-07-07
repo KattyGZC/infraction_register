@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Infraction, Vehicle
+from rest_framework_simplejwt.tokens import RefreshToken
+from .models import Infraction, Vehicle, Officers
 
 class InfractionSerializer(serializers.ModelSerializer):
     patente = serializers.CharField(write_only=True)
@@ -20,3 +21,21 @@ class InfractionSerializer(serializers.ModelSerializer):
         vehicle = validated_data.pop('patente')
         infraction = Infraction.objects.create(vehicle=vehicle, **validated_data)
         return infraction
+    
+
+class TokenObtainSerializer(serializers.Serializer):
+    identification = serializers.IntegerField()
+
+    def validate(self, attrs):
+        identification = attrs.get('identification')
+        try:
+            officer = Officers.objects.get(nui=identification)
+        except Officers.DoesNotExist:
+            raise serializers.ValidationError({"general_errors": "Oficial de tránsito no encontrado"})
+
+        refresh = RefreshToken.for_user(officer)
+        refresh['user_id'] = officer.id
+        return {
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+        }

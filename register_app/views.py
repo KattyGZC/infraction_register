@@ -1,14 +1,15 @@
 from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView, ListView, UpdateView, DeleteView, DetailView
-from django.http import HttpResponse, JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
+from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
-from rest_framework.parsers import JSONParser
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 
 from .models import Person, Vehicle, Officers, Infraction
-from .serializers import InfractionSerializer
+from .serializers import InfractionSerializer, TokenObtainSerializer
+
+
 class PersonListView(ListView):
     model = Person
     template_name = 'register_app/list.html'
@@ -28,7 +29,7 @@ class PersonListView(ListView):
             for obj in self.object_list
         ]
         return context
-    
+
 
 class VehicleListView(ListView):
     model = Vehicle
@@ -67,7 +68,7 @@ class OfficerListView(ListView):
             }
             for obj in self.object_list
         ]
-        return context  
+        return context
 
 
 class PersonCreateView(CreateView):
@@ -81,7 +82,7 @@ class PersonCreateView(CreateView):
         context["title"] = 'Nuevo registro de Persona'
         context["url"] = reverse('register_app:person_list')
         context["action"] = 'Crear'
-        return context 
+        return context
 
 
 class VehicleCreateView(CreateView):
@@ -93,10 +94,10 @@ class VehicleCreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = 'Nuevo registro de vehículo'
-        context['action']  = 'Crear'
+        context['action'] = 'Crear'
         context["url"] = reverse('register_app:vehicle_list')
-        return context 
-    
+        return context
+
 
 class OfficerCreateView(CreateView):
     model = Officers
@@ -107,10 +108,10 @@ class OfficerCreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = 'Nuevo registro de Oficial'
-        context['action']  = 'Crear'
+        context['action'] = 'Crear'
         context["url"] = reverse('register_app:officer_list')
-        return context 
-    
+        return context
+
 
 class PersonEditView(UpdateView):
     model = Person
@@ -124,7 +125,7 @@ class PersonEditView(UpdateView):
         context["action"] = 'Guardar'
         context["url"] = reverse('register_app:person_list')
         return context
-    
+
 
 class VehicleEditView(UpdateView):
     model = Vehicle
@@ -138,7 +139,7 @@ class VehicleEditView(UpdateView):
         context["action"] = 'Guardar'
         context["url"] = reverse('register_app:vehicle_list')
         return context
-    
+
 
 class OfficerEditView(UpdateView):
     model = Officers
@@ -152,7 +153,7 @@ class OfficerEditView(UpdateView):
         context["action"] = 'Guardar'
         context["url"] = reverse('register_app:officer_list')
         return context
-    
+
 
 class PersonDeleteView(DeleteView):
     model = Person
@@ -185,7 +186,7 @@ class OfficerDeleteView(DeleteView):
         context = super().get_context_data(**kwargs)
         context["url"] = reverse('register_app:officer_list')
         return context
-    
+
 
 class PersonDetailView(DetailView):
     model = Person
@@ -195,9 +196,12 @@ class PersonDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["url"] = reverse('register_app:person_list')
-        context['url_edit'] = reverse('register_app:person_edit', kwargs={'pk': self.object.pk})
-        context['url_delete'] = reverse('register_app:person_delete', kwargs={'pk': self.object.pk})
-        context['fields'] = [(field.verbose_name, field.value_from_object(self.object)) for field in self.object._meta.fields]
+        context['url_edit'] = reverse(
+            'register_app:person_edit', kwargs={'pk': self.object.pk})
+        context['url_delete'] = reverse(
+            'register_app:person_delete', kwargs={'pk': self.object.pk})
+        context['fields'] = [(field.verbose_name, field.value_from_object(
+            self.object)) for field in self.object._meta.fields]
         return context
 
 
@@ -209,15 +213,17 @@ class VehicleDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["url"] = reverse('register_app:vehicle_list')
-        context['url_edit'] = reverse('register_app:vehicle_edit', kwargs={'pk': self.object.pk})
-        context['url_delete'] = reverse('register_app:vehicle_delete', kwargs={'pk': self.object.pk})
+        context['url_edit'] = reverse(
+            'register_app:vehicle_edit', kwargs={'pk': self.object.pk})
+        context['url_delete'] = reverse(
+            'register_app:vehicle_delete', kwargs={'pk': self.object.pk})
         fields = []
         for field in self.object._meta.fields:
             value = getattr(self.object, field.name)
             if field.is_relation:
                 value = str(value)
             fields.append((field.verbose_name, value))
-        
+
         context['fields'] = fields
         return context
 
@@ -230,18 +236,36 @@ class OfficerDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["url"] = reverse('register_app:officer_list')
-        context['url_edit'] = reverse('register_app:officer_edit', kwargs={'pk': self.object.pk})
-        context['url_delete'] = reverse('register_app:officer_delete', kwargs={'pk': self.object.pk})
-        context['fields'] = [(field.verbose_name, field.value_from_object(self.object)) for field in self.object._meta.fields]
+        context['url_edit'] = reverse(
+            'register_app:officer_edit', kwargs={'pk': self.object.pk})
+        context['url_delete'] = reverse(
+            'register_app:officer_delete', kwargs={'pk': self.object.pk})
+        context['fields'] = [(field.verbose_name, field.value_from_object(
+            self.object)) for field in self.object._meta.fields]
         return context
-    
+
 
 OK = status.HTTP_200_OK
 NOT_FOUND = status.HTTP_404_NOT_FOUND
 SERVER_ERROR = status.HTTP_500_INTERNAL_SERVER_ERROR
 
 
+class TokenObtainView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = TokenObtainSerializer(data=request.data)
+        if serializer.is_valid():
+            return Response({
+                'status': 'success',
+                'data': serializer.validated_data,
+            }, status=OK)
+        return Response({
+            'status': 'error',
+            'errors': serializer.errors,
+        }, status=NOT_FOUND)
+
+
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def cargar_infraccion(request):
     """
     create a new infraction.
@@ -281,13 +305,14 @@ def cargar_infraccion(request):
                 'errors': serializer.errors
             }
             return Response(response_data, status=NOT_FOUND)
-        
-        
+
+
 @api_view(['GET'])
 def generar_informe(request):
     if request.method == 'GET':
         email = request.query_params.get('email')
-        infracctions = Infraction.objects.filter(vehicle__person__email=email).order_by('timestamp')
+        infracctions = Infraction.objects.filter(
+            vehicle__person__email=email).order_by('timestamp')
         if infracctions.exists():
             serializer = InfractionSerializer(infracctions, many=True)
             response_data = {
