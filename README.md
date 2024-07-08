@@ -28,21 +28,19 @@ Los llamados se pueden hacer desde la consola y/o con herramientas como Postman
 
 Generar el Token de Acceso (POST):
 ```
+http://127.0.0.1:8000/register_app/api/token/
 Body:
 {
     "identification": <numero_unico_identificatorio(nui)>
 }
 -----------------
-curl -X POST http://tu_dominio.com/api/token/ \ -H "Content-Type: application/json" \ -d '{"identification": <numero_unico_identificatorio(nui)>}'
+curl -X POST http://127.0.0.1:8000/register_app/api/token/ \ -H "Content-Type: application/json" \ -d '{"identification": <numero_unico_identificatorio(nui)>}'
 
 Respuesta:
 {
-    "status": "success",
-    "data": {
         "officer": "officer_name",
         "refresh": "<refresh_token>",
         "access": "<access_token>"
-    }
 }
 ```
 
@@ -53,33 +51,27 @@ Body:
     "refresh": "<refresh_token>"
 }
 -----------------
-curl -X POST http://127.0.0.1:8000/register_app/api/token/ \ -H "Content-Type: application/json" \ -d '{"refresh": "<refresh_token>"'
+curl -X POST http://127.0.0.1:8000/register_app/api/token/ \ -H "Content-Type: application/json" \ -d '{"refresh": "<refresh_token>"}'
 
 Respuesta:
 {
-    "status": "success",
-    "data": {
-        "officer": "officer_name",
-        "refresh": "<refresh_token>",
-        "access": "<access_token>"
-    }
+    "access": "<access_token>"
 }
 ```
 
 Registrar una nueva infracción (POST):
 ```
-curl -X POST http://127.0.0.1:8000/register_app/api/create-infraction/ \ -H "Authorization: Bearer <access_token>" \ -H "Content-Type: application/json" \ -d '{"patente": "<patente>", "timestamp": "<fecha y hora>", "comment": "<comentario>"}'
+curl -X POST http://127.0.0.1:8000/register_app/api/create-infraction/ \ -H "Authorization: Bearer <access_token>" \ -H "Content-Type: application/json" \ -d '{"patent": "<patente>", "timestamp": "<YYYY-MM-DD HH:MM>", "comment": "<comentario>"}'
 
 
 Respuesta:
 {
-    "status": 200,
+    "msj": "Infracción registrada con éxito."
     "object": {
         "vehicle": "patente - persona",
-        "timestamp": "fecha y hora,
+        "timestamp": "YYYY-MM-DD HH:MM,
         "comment": "Comentario"
     },
-    "msj": "Infracción registrada con éxito."
 }
 ```
 
@@ -90,19 +82,18 @@ http://127.0.0.1:8000/register_app/api/generar-informe?email=<correo_persona>
 
 Respuesta:
 {
-   "status": 200,
+    "msj": "Infracciones encontradas."
     "objects": [
         {
             "vehicle": "patente - persona",
-            "timestamp": "fecha y hora",
+            "timestamp": "YYYY-MM-DD HH:MM",
             "comment": "Commentario"
         },
         {
             "vehicle": "patente - persona",
-            "timestamp": "fecha y hora",
+            "timestamp": "YYYY-MM-DD HH:MM",
             "comment": "Commentario"
         }
     ],
-    "msj": "Infracciones encontradas."
 }
 ```

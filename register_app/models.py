@@ -14,12 +14,12 @@ class Person(models.Model):
 
 class Vehicle(models.Model):
     person = models.ForeignKey(Person, on_delete=models.CASCADE, verbose_name='Persona')
-    patente = models.CharField('Placa de patente', max_length=15, unique=True)
+    patent = models.CharField('Placa de patente', max_length=15, unique=True)
     brand = models.CharField('Marca', max_length=100)
     color = models.CharField('Color', max_length=50)
 
     def __str__(self) -> str:
-        return f'PLACA: {self.patente} - {self.person.name}'
+        return f'PLACA: {self.patent} - {self.person.name}'
 
     class Meta:
         verbose_name = 'Vehículo'

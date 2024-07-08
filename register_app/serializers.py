@@ -3,22 +3,22 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import Infraction, Vehicle, Officers
 
 class InfractionSerializer(serializers.ModelSerializer):
-    patente = serializers.CharField(write_only=True)
+    patent = serializers.CharField(write_only=True)
     vehicle = serializers.StringRelatedField(read_only=True)
 
     class Meta:
         model = Infraction
-        fields = ['vehicle', 'timestamp', 'comment', 'patente']
+        fields = ['vehicle', 'timestamp', 'comment', 'patent']
 
-    def validate_patente(self, value):
+    def validate_patent(self, value):
         try:
-            vehicle = Vehicle.objects.get(patente=value)
+            vehicle = Vehicle.objects.get(patent=value)
         except Vehicle.DoesNotExist:
             raise serializers.ValidationError("El vehículo con la patente proporcionada no existe.")
         return vehicle
 
     def create(self, validated_data):
-        vehicle = validated_data.pop('patente')
+        vehicle = validated_data.pop('patent')
         infraction = Infraction.objects.create(vehicle=vehicle, **validated_data)
         return infraction
     

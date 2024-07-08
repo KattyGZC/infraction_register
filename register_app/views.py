@@ -254,12 +254,9 @@ class TokenObtainView(APIView):
     def post(self, request, *args, **kwargs):
         serializer = TokenObtainSerializer(data=request.data)
         if serializer.is_valid():
-            return Response({
-                'status': 'success',
-                'data': serializer.validated_data,
-            }, status=OK)
+            return Response(serializer.validated_data, status=OK)
+        
         return Response({
-            'status': 'error',
             'errors': serializer.errors,
         }, status=NOT_FOUND)
 
@@ -272,9 +269,8 @@ def cargar_infraccion(request):
     """
     if request.method == 'POST':
 
-        if not request.data.get('patente'):
+        if not request.data.get('patent'):
             response_data = {
-                'status': NOT_FOUND,
                 'message': "El parámetro 'patente' es obligatorio."
             }
             return Response(response_data, status=NOT_FOUND)
@@ -285,22 +281,19 @@ def cargar_infraccion(request):
             try:
                 serializer.save()
                 response_data = {
-                    'status': OK,
+                    'msj': 'Infracción registrada con éxito.',
                     'object': serializer.data,
-                    'msj': 'Infracción registrada con éxito.'
                 }
                 return Response(response_data, status=OK)
 
             except Exception as e:
                 response_data = {
-                    'status': SERVER_ERROR,
                     'msj': 'Ocurrió un error inesperado.',
                     'errors': str(e)
                 }
                 return Response(response_data, status=SERVER_ERROR)
         else:
             response_data = {
-                'status': NOT_FOUND,
                 'message': 'Errores de validación.',
                 'errors': serializer.errors
             }
@@ -313,19 +306,13 @@ def generar_informe(request):
         email = request.query_params.get('email')
         infracctions = Infraction.objects.filter(
             vehicle__person__email=email).order_by('timestamp')
+        serializer = InfractionSerializer(infracctions, many=True)
         if infracctions.exists():
-            serializer = InfractionSerializer(infracctions, many=True)
             response_data = {
-                'status': OK,
-                'objects': serializer.data,
-                'msj': 'Infracciones encontradas.'
+                'msj': 'Infracciones encontradas.',
+                'objects': serializer.data
             }
-
         else:
-            response_data = {
-                'status': NOT_FOUND,
-                'objects': [],
-                'msj': 'No se encontraron infracciones.'
-            }
+            response_data = {'msj': 'No se encontraron infracciones'}
+        return Response(response_data, status=OK)
 
-        return Response(response_data)
